@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <map>
 #include <ctime>
+#include <string>
 
 using namespace std;
 
 vector<int> getRandomCode();
+
+vector<int> getUserGuess();
 
 void createSet();
 void makeSet();
@@ -14,6 +17,7 @@ void makeSet();
 void combinationRecursive(int combinationLength, int position, vector<int> &current, vector<int> &elements);
 
 string checkCode(vector<int> guess, vector<int> code);
+string getHintFromUser();
 
 void removeCode(vector<vector<int>> &set, vector<int> code);
 
@@ -33,9 +37,12 @@ static vector<vector<int>> combinations; //Master set of combinations 1111 to 66
 static vector<vector<int>> combinations2; //Master set of combinations 1111 to 6666
 static vector<vector<int>> candidateSolutions;
 static vector<vector<int>> nextGuesses;
+static vector<int> comp_code;
 static vector<int> code;
 static vector<int> currentGuess;
-static string responsePegs;
+static vector<int> user_guess;
+static string comp_respond;
+static string user_hint;
 static bool won;
 static int turn;
 
@@ -44,47 +51,71 @@ int main() {
     turn = 1;
     won = false;
 
-    code = getRandomCode();
-    currentGuess = {1, 2, 3, 4}; //1122
+    comp_code = getRandomCode();
+
+    currentGuess = {1, 3, 5, 7}; //1122
+
+    cout << "Think a 4 digit number \n If your ready";
+
+
 
     //Create the set of 1296 possible codes
     //createSet();
     makeSet();
-
     candidateSolutions.insert(candidateSolutions.end(), combinations.begin(), combinations.end());
 
     cout << "Code: ";
-    for (int i = 0; i < code.size(); ++i) {
-        cout << code[i] << " ";
+    for (int i = 0; i < comp_code.size(); ++i) {
+        cout << comp_code[i] << " ";
     }
     cout << endl;
 
     while (!won) {
 
+        cout << "\n Turn: " << turn << endl;
+
+        // ------------------------- User Turn -------------------------
+        //Play the guess to get a response of colored and white pegs
+        //comp_respond = checkCode(currentGuess, comp_code);
+        
+        cout << "guess my number : ";
+        user_guess = getUserGuess();
+        comp_respond = checkCode(user_guess, comp_code);
+
+        cout << comp_respond << endl;
+
+        //If the response is four colored pegs, the game is won
+        if (comp_respond == "+4-0") {
+            won = true;
+            cout << "You Win!" << endl;
+            break;
+        }
+
+
+        // ------------------------- Computer Turn -------------------------
+        
         //Remove currentGuess from possible solutions
         removeCode(combinations, currentGuess);
         removeCode(candidateSolutions, currentGuess);
 
-        //Play the guess to get a response of colored and white pegs
-        responsePegs = checkCode(currentGuess, code);
-
-        cout << "Turn: " << turn << endl;
-        cout << "Guess: ";
+        cout << "Your Number : ";
         for (int i = 0; i < currentGuess.size(); ++i) {
             cout << currentGuess[i] << " ";
         }
-        cout << "= " << responsePegs << endl;
+        cout<<"?"<<endl;
 
-        //If the response is four colored pegs, the game is won
-        if (responsePegs == "++++") {
+        //user_hint = getHintFromUser(); // BU EKSİK KALDI
+        cin >> user_hint;
+
+        if (user_hint == "+4-0") {
             won = true;
-            cout << "Game Won!" << endl;
+            cout << "Computer Win!" << endl;
             break;
         }
 
         //Remove from candidateSolutions,
         //any code that would not give the same response if it were the code
-        pruneCodes(candidateSolutions, currentGuess, responsePegs);
+        pruneCodes(candidateSolutions, currentGuess, user_hint);
 
         //Calculate Minmax scores
         nextGuesses = minmax();
@@ -117,6 +148,31 @@ vector<int> getRandomCode() {
 
     return code;
 }
+vector<int> getUserGuess(){
+
+    vector<int> userCode;
+    int userGuess;
+    cin >> userGuess;
+    
+    while (userGuess > 0)
+    {
+        int digit = userGuess%10;
+        userGuess /= 10;
+        userCode.insert(userCode.begin(),digit);
+    }
+
+    return userCode;
+
+}
+
+string getHintFromUser(){
+
+    string user_hint;
+    cin >> user_hint;
+
+    return user_hint;
+}
+
 
 void makeSet(){
 
@@ -185,18 +241,23 @@ void combinationRecursive(int combinationLength, int position, vector<int> &curr
 string checkCode(vector<int> guess, vector<int> code) {
 
     string result;
+    int correct_place = 0;
+    int wrong_place = 0;
 
     //Get black/coloured
+    result.append("+");
     for (int i = 0; i < CODE_LENGTH; ++i) {
 
         if (guess[i] == code[i]) {
-            result.append("+");
+            correct_place++;
             guess[i] *= -1;
             code[i] *= -1;
         }
     }
+    result.append(to_string(correct_place));
 
     //Get white
+    result.append("-");
     for (int i = 0; i < CODE_LENGTH; ++i) {
 
         if (code[i] > 0) {
@@ -204,16 +265,18 @@ string checkCode(vector<int> guess, vector<int> code) {
             vector<int>::iterator it = find(guess.begin(), guess.end(), code[i]);
             int index;
             if (it != guess.end()) {
-
+                wrong_place++;
                 index = distance(guess.begin(), it);
-                result.append("-");
                 guess[index] *= -1;
             }
         }
     }
+    result.append(to_string(wrong_place));
 
     return result;
 }
+
+
 
 void removeCode(vector<vector<int>> &set, vector<int> currentCode) {
 
