@@ -4,8 +4,10 @@
 #include <map>
 #include <ctime>
 #include <string>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 vector<int> getRandomCode();
 
@@ -23,7 +25,7 @@ void removeCode(vector<vector<int>> &set, vector<int> code);
 
 void pruneCodes(vector<vector<int>> &set, vector<int> code, string currentResponse);
 
-vector<vector<int>> minmax();
+vector<vector<int>> minmax(int turn);
 
 int getMaxScore(map<string, int> inputMap);
 
@@ -52,10 +54,17 @@ int main() {
     won = false;
 
     comp_code = getRandomCode();
+    //-------------------------------------
+    cout << "\nCode: ";
+    for (int i = 0; i < comp_code.size(); ++i) {
+        cout << comp_code[i] << " ";
+    }
+    cout << endl;
+    //-------------------------------------
 
     currentGuess = {1, 3, 5, 7}; //1122
 
-    cout << "Think a 4 digit number \n If your ready";
+    cout << "Think a 4 digit number \nIf your ready";
 
 
 
@@ -64,15 +73,11 @@ int main() {
     makeSet();
     candidateSolutions.insert(candidateSolutions.end(), combinations.begin(), combinations.end());
 
-    cout << "Code: ";
-    for (int i = 0; i < comp_code.size(); ++i) {
-        cout << comp_code[i] << " ";
-    }
-    cout << endl;
+
 
     while (!won) {
 
-        cout << "\n Turn: " << turn << endl;
+        cout << "\n------- Turn: " << turn <<" -------"<< endl;
 
         // ------------------------- User Turn -------------------------
         //Play the guess to get a response of colored and white pegs
@@ -104,8 +109,9 @@ int main() {
         }
         cout<<"?"<<endl;
 
-        //user_hint = getHintFromUser(); // BU EKSİK KALDI
-        cin >> user_hint;
+        cout << "Enter hint: ";
+        user_hint = getHintFromUser(); // BU EKSİK KALDI
+        //cin >> user_hint;
 
         if (user_hint == "+4-0") {
             won = true;
@@ -118,7 +124,7 @@ int main() {
         pruneCodes(candidateSolutions, currentGuess, user_hint);
 
         //Calculate Minmax scores
-        nextGuesses = minmax();
+        nextGuesses = minmax(turn);
 
         //Select next guess
         currentGuess = getNextGuess(nextGuesses);
@@ -150,15 +156,63 @@ vector<int> getRandomCode() {
 }
 vector<int> getUserGuess(){
 
+    bool input_check = true;
+    bool valid = false;
     vector<int> userCode;
-    int userGuess;
-    cin >> userGuess;
-    
-    while (userGuess > 0)
-    {
-        int digit = userGuess%10;
-        userGuess /= 10;
-        userCode.insert(userCode.begin(),digit);
+
+    while (input_check){
+        input_check = false;
+
+        string s_userGuess;
+        cin >> s_userGuess;
+        
+        // Check size 
+        if (s_userGuess.size() != 4){
+            cout << "Enter 4-digit number" << endl;
+            cout << "guess my number: ";
+            input_check = true;
+            continue;
+        }
+
+        // Check is number or character
+        
+        for (int i = 0; i < s_userGuess.length(); i++){
+            if (isdigit(s_userGuess[i]) == false){
+                cout << "Enter numbers, not character"<<endl;
+                cout << "guess my number: ";
+                input_check = true;
+                valid = false;
+                break;
+            }
+            valid = true;
+        }
+        
+        
+        //check if there are same numbers in input
+        for (int i = 0; i < 4; i++) {
+            for (int j = (i + 1); j < 4; j++) {
+                if (s_userGuess[i] == s_userGuess[j]) {
+                    cout << "Digits should be different" << endl;
+                    cout << "guess my number: ";
+                    input_check = true;
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid) break;
+        }
+        if (!valid) continue;
+
+
+
+        int userGuess = stoi(s_userGuess);
+
+        while (userGuess > 0)
+        {
+            int digit = userGuess%10;
+            userGuess /= 10;
+            userCode.insert(userCode.begin(),digit);
+        }
     }
 
     return userCode;
@@ -167,10 +221,45 @@ vector<int> getUserGuess(){
 
 string getHintFromUser(){
 
-    string user_hint;
-    cin >> user_hint;
+    bool format_check = true;
+    string user_input;
+    while (format_check){
+        format_check = false;
 
-    return user_hint;
+        user_input = "";
+        cin >> user_input;
+        
+        // Check Input Format
+        if (user_input.at(0) != '+' || user_input.at(2) != '-'){
+            format_check = true;
+            cout << "Hint format should be like that --> +X-Y"<<endl;
+            cout << "Enter hint: ";
+            continue;
+        }
+        
+        if (!isdigit(user_input.at(1)) || !isdigit(user_input.at(3))){
+            format_check = true;
+            cout << "Second and third value should be number --> +X-Y"<<endl;
+            cout << "Enter hint: ";
+            continue;
+        }
+        // Check input size
+        if (user_input.size() != 4){
+            format_check = true;
+            cout << "Hint length should be 4"<<endl;
+            cout << "Enter hint: ";
+            continue;
+        }
+        // Check sum of numbers 
+        if ((user_input[1]-48)+(user_input[3]-48)>4){
+            format_check = true;
+            cout << "Sum of numbers can not be bigger than 4"<<endl;
+            cout << "Enter hint: ";
+            continue;
+        }
+
+    }
+    return user_input;
 }
 
 
@@ -278,6 +367,7 @@ string checkCode(vector<int> guess, vector<int> code) {
 
 
 
+
 void removeCode(vector<vector<int>> &set, vector<int> currentCode) {
 
     int index;
@@ -307,7 +397,7 @@ void pruneCodes(vector<vector<int>> &set, vector<int> currentCode, string curren
     }
 }
 
-vector<vector<int>> minmax() {
+vector<vector<int>> minmax(int turn) {
 
     map<string, int> scoreCount;
     map<vector<int>, int> score;
@@ -315,7 +405,9 @@ vector<vector<int>> minmax() {
     int max, min;
 
     for (int i = 0; i < combinations.size(); ++i) {
-
+        if (turn == 1 && i>100){
+            break;
+        }
         for (int j = 0; j < candidateSolutions.size(); ++j) {
 
             string pegScore = checkCode(combinations[i], candidateSolutions[j]);
