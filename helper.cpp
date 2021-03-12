@@ -25,6 +25,10 @@ int turn;
 
 
 string testCode(vector<int> guess){
+   /**
+   * Kodu daha hızlı test etmek için kullanılabilir.
+   * 
+   */
 
     vector<vector<int>> test_code 
     { 
@@ -42,7 +46,10 @@ string testCode(vector<int> guess){
 }
 
 bool checkResult(string respond,int who){
-    
+   /**
+   * Alınan ipucunu kontrol ederek kazananı belirler.
+   * 
+   */
     if (respond == "+4-0") {
         win = true;
         if (who == 0)
