@@ -2,18 +2,18 @@
 #define HELPER_H_
 
 #include <vector>
-#include <chrono>
+//#include <chrono>
 using namespace std;
 using namespace std::chrono;
 
-extern vector<vector<int>> combinations; //Master set of combinations 1111 to 6666
-extern vector<vector<int>> candidateSolutions;
-extern vector<vector<int>> nextGuesses;
-extern vector<int> comp_code;
+extern vector<vector<int>> combinations;
+extern vector<vector<int>> candidate_solution;
+extern vector<vector<int>> next_guesses;
+extern vector<int> computer_code;
 extern vector<int> code;
-extern vector<int> currentGuess;
+extern vector<int> current_guess;
 extern vector<int> user_guess;
-extern string comp_respond;
+extern string computer_respond;
 extern string user_hint;
 extern bool win;
 extern int turn;
@@ -25,7 +25,7 @@ void pruneCodes(vector<vector<int>> &set, vector<int> code, string currentRespon
 vector<int> getRandomCode();
 vector<int> getUserGuess();
 vector<vector<int>> minmax(int turn);
-vector<int> getNextGuess(vector<vector<int>> nextGuesses);
+vector<int> getNextGuess(vector<vector<int>> next_guesses);
 
 int getMaxScore(map<string, int> inputMap);
 int getMinScore(map<vector<int>, int> inputMap);

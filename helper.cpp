@@ -13,25 +13,28 @@ using namespace std::chrono;
 
 
 vector<vector<int>> combinations; //Master set of combinations 1111 to 6666
-vector<vector<int>> candidateSolutions;
-vector<vector<int>> nextGuesses;
-vector<int> comp_code;
+vector<vector<int>> candidate_solution;
+vector<vector<int>> next_guesses;
+vector<int> computer_code;
 vector<int> code;
-vector<int> currentGuess;
+vector<int> current_guess;
 vector<int> user_guess;
-string comp_respond;
+string computer_respond;
 string user_hint;
 bool win;
 int turn;
 
 
 vector<int> getRandomCode() {
+   /**
+   * Rakamlari farkli 4 basamakli sayi olusturur.
+   * 
+   */
 
     vector<int> code;
     int max = 9;
     int min = 1;
     int random;
-    //Returns the number of seconds since the UNIX epoch for a seed
     srand(time(0));
 
     while(code.size()<4) {
@@ -45,6 +48,11 @@ vector<int> getRandomCode() {
     return code;
 }
 vector<int> getUserGuess(){
+   /**
+   * Kullanicinin girdigi tahmini alir.
+   * Uygun olup olmadigini kontrol eder
+   * Uzunluk - Harf - Farkli sayilardan olusma
+   */
 
     bool input_check = true;
     bool valid = false;
@@ -56,7 +64,7 @@ vector<int> getUserGuess(){
         string s_userGuess;
         cin >> s_userGuess;
         
-        // Check size 
+        // Uzunluk kontrolu
         if (s_userGuess.size() != 4){
             cout << "Enter 4-digit number" << endl;
             cout << "guess my number: ";
@@ -64,8 +72,7 @@ vector<int> getUserGuess(){
             continue;
         }
 
-        // Check is number or character
-        
+        // Harf kontrolu
         for (int i = 0; i < s_userGuess.length(); i++){
             if (isdigit(s_userGuess[i]) == false){
                 cout << "Enter numbers, not character"<<endl;
@@ -77,8 +84,7 @@ vector<int> getUserGuess(){
             valid = true;
         }
         
-        
-        //check if there are same numbers in input
+        // Farklı rakamlardan olusma kontrolu
         for (int i = 0; i < 4; i++) {
             for (int j = (i + 1); j < 4; j++) {
                 if (s_userGuess[i] == s_userGuess[j]) {
@@ -94,7 +100,8 @@ vector<int> getUserGuess(){
         if (!valid) continue;
 
 
-
+        // Once int cevrilir
+        // Daha sonra vector<int> olarak return edilir.
         int userGuess = stoi(s_userGuess);
 
         while (userGuess > 0)
@@ -110,6 +117,11 @@ vector<int> getUserGuess(){
 }
 
 string getHintFromUser(){
+   /**
+   * Kullanicinin girdigi ipucunu alir.
+   * Uygun olup olmadigini kontrol eder
+   * Uzunluk - Format - Toplam
+   */
 
     bool format_check = true;
     string user_input;
@@ -156,6 +168,11 @@ string getHintFromUser(){
 
 
 void makeSet(){
+    /**
+    * Rakamlari farkli 4 basamakli olan bütün sayilarin listesini olusturur
+    * Bu listeden her tahmin sonrasi elemeler yapilarak sonuca ulasmaya calisilir.
+    * 
+    */
 
     vector<int> current;
 
@@ -189,12 +206,16 @@ void makeSet(){
 
 
 string checkCode(vector<int> guess, vector<int> code) {
-
+    /**
+    * Kullanicinin tahmini ile yazilimin sayisini karsilastirir
+    * ve uygun olan ipucuyu return eder
+    * 
+    */
     string result;
     int correct_place = 0;
     int wrong_place = 0;
 
-    //Get black/coloured
+    //Dogru yerdeki sayilar kontrol edilir
     result.append("+");
     for (int i = 0; i < 4; ++i) {
 
@@ -206,7 +227,7 @@ string checkCode(vector<int> guess, vector<int> code) {
     }
     result.append(to_string(correct_place));
 
-    //Get white
+    // Yanlis yerdeki sayılar kontrol edilir.
     result.append("-");
     for (int i = 0; i < 4; ++i) {
 
@@ -230,7 +251,10 @@ string checkCode(vector<int> guess, vector<int> code) {
 
 
 void removeCode(vector<vector<int>> &set, vector<int> currentCode) {
-
+    /**
+    * Bir kere kullanılan sayiyi tekrar kullanmamak için
+    * listeden o tahmini siler.
+    */
     int index;
     for (auto it = set.begin(); it != set.end(); it++) {
         index = distance(set.begin(), it);
@@ -243,7 +267,11 @@ void removeCode(vector<vector<int>> &set, vector<int> currentCode) {
 }
 
 void pruneCodes(vector<vector<int>> &set, vector<int> currentCode, string currentResponse) {
-
+   /**
+   * candidate listesindeki dogru sayinin olusturacagi ipucu ile
+   * kullanicinin verdigi ipucu aynı olacaktır. 
+   * Bu yüzden listede ayni ipucu sonucunu vermeyen degeler elenir.
+   */
     int index;
     vector<vector<int>>::iterator it = set.begin();
 
@@ -259,19 +287,24 @@ void pruneCodes(vector<vector<int>> &set, vector<int> currentCode, string curren
 }
 
 vector<vector<int>> minmax(int turn) {
+    /**
+    * Bir sonraki tahmin icin candidate listesinden en cok elemeye yapacak sayi secilmelidir.
+    * Bunun icin muhtemel inputlar teker teker denenip minimum eleme sayilari bulunur.
+    * Daha sonra bunlar icersinde maximum eleme yapan deger secilir.
+    */
 
     map<string, int> scoreCount;
     map<vector<int>, int> score;
-    vector<vector<int>> nextGuesses;
+    vector<vector<int>> next_guesses;
     int max, min;
 
     for (int i = 0; i < combinations.size(); ++i) {
         if (turn == 1 && i>100){
             break;
         }
-        for (int j = 0; j < candidateSolutions.size(); ++j) {
+        for (int j = 0; j < candidate_solution.size(); ++j) {
 
-            string pegScore = checkCode(combinations[i], candidateSolutions[j]);
+            string pegScore = checkCode(combinations[i], candidate_solution[j]);
             if (scoreCount.count(pegScore) > 0) {
                 scoreCount.at(pegScore)++;
             } else {
@@ -288,14 +321,17 @@ vector<vector<int>> minmax(int turn) {
 
     for (auto elem : score) {
         if (elem.second == min) {
-            nextGuesses.push_back(elem.first);
+            next_guesses.push_back(elem.first);
         }
     }
 
-    return nextGuesses;
+    return next_guesses;
 }
 
 int getMaxScore(map<string, int> inputMap) {
+    /**
+    * map icindeki maximum degeri bulur
+    */
 
     int max = 0;
     for (auto elem : inputMap) {
@@ -308,6 +344,9 @@ int getMaxScore(map<string, int> inputMap) {
 }
 
 int getMinScore(map<vector<int>, int> inputMap) {
+    /**
+    * map icindeki minimum degeri bulur
+    */
 
     int min = numeric_limits<int>::max();
     for (auto elem : inputMap) {
@@ -319,18 +358,22 @@ int getMinScore(map<vector<int>, int> inputMap) {
     return min;
 }
 
-vector<int> getNextGuess(vector<vector<int>> nextGuesses) {
+vector<int> getNextGuess(vector<vector<int>> next_guesses) {
+    /**
+    * Bir sonraki tahmin icin secilmis degerler arasında oncelikle candidate listesinde bulunanlar alinir
+    * Yoksa butun ihtimallarin icinde oldugu tekrar kontrol edilerek ilk olan secilir.
+    */
 
     vector<int> nextGuess;
 
-    for (int i = 0; i < nextGuesses.size(); ++i) {
-        if (find(candidateSolutions.begin(), candidateSolutions.end(), nextGuesses[i]) != candidateSolutions.end()) {
-            return nextGuesses[i];
+    for (int i = 0; i < next_guesses.size(); ++i) {
+        if (find(candidate_solution.begin(), candidate_solution.end(), next_guesses[i]) != candidate_solution.end()) {
+            return next_guesses[i];
         }
     }
-    for (int j = 0; j < nextGuesses.size(); ++j) {
-        if (find(combinations.begin(), combinations.end(), nextGuesses[j]) != combinations.end()) {
-            return nextGuesses[j];
+    for (int j = 0; j < next_guesses.size(); ++j) {
+        if (find(combinations.begin(), combinations.end(), next_guesses[j]) != combinations.end()) {
+            return next_guesses[j];
         }
     }
 

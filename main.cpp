@@ -17,55 +17,65 @@ int main() {
     turn = 1;
     win = false;
 
-    comp_code = getRandomCode();
+    // Yazilim icin rasgele sayi uret
+    computer_code = getRandomCode();
+
     //-------------------------------------
-    cout << "\nCode: ";
-    for (int i = 0; i < comp_code.size(); ++i) {
-        cout << comp_code[i] << " ";
+    /*cout << "\nCode: ";
+    for (int i = 0; i < computer_code.size(); ++i) {
+        cout << computer_code[i] << " ";
     }
-    cout << endl;
+    cout << endl;*/
     //-------------------------------------
-    currentGuess = {1, 3, 5, 7}; //1122
+
+
+    // Yazilimin baslangic tahmini 
+    current_guess = {1, 3, 5, 7}; //1122
 
     cout << "Think a 4 digit number \nIf your ready";
 
-    //Create the set of 1296 possible codes
-
+    // Muhtemel butun 4 basamaklı sayıların listesini olustur.
+    // Daha sonra bu liste uzerınde elemeler yaparak sonuca ulasacagiz
     makeSet();
-    candidateSolutions.insert(candidateSolutions.end(), combinations.begin(), combinations.end());
 
+    // Bu listeyi eleme yapacagimiz candidate listesine kopyala
+    candidate_solution.insert(candidate_solution.end(), combinations.begin(), combinations.end());
+
+    // Main loop
     while (!win) {
 
         cout << "\n------- Turn: " << turn <<" -------"<< endl;
 
-        // ------------------------- User Turn -------------------------
+        // ------------------------- Kullanici Tahmini -------------------------
         cout << "guess my number : ";
+
+        //Kullanicinin girdisini alıp kontrol et ve daha sonra ipucuyu olustur.
         user_guess = getUserGuess();
-        comp_respond = checkCode(user_guess, comp_code);
+        computer_respond = checkCode(user_guess, computer_code);
+        cout << computer_respond << endl;
 
-        cout << comp_respond << endl;
-
-        //If the response is four colored pegs, the game is win
-        if (comp_respond == "+4-0") {
+        //Eger butun degerler dogru ise oyunu kazanir
+        if (computer_respond == "+4-0") {
             win = true;
             cout << "You Win!" << endl;
             break;
         }
 
-        // ------------------------- Computer Turn -------------------------       
-        //Remove currentGuess from possible solutions
-        removeCode(combinations, currentGuess);
-        removeCode(candidateSolutions, currentGuess);
+        // ------------------------- Yazilim Tahmini -------------------------       
+        // Tekrar ayni sayi girmemek icin bir kere kullandigimiz sayiyi listeden cikariyoruz
+        removeCode(combinations, current_guess);
+        removeCode(candidate_solution, current_guess);
 
+        // Yazilim tahminini ekrana basar ve kullanicidan ipucu bekler
         cout << "Your Number : ";
-        for (int i = 0; i < currentGuess.size(); ++i) {
-            cout << currentGuess[i] << " ";
+        for (int i = 0; i < current_guess.size(); ++i) {
+            cout << current_guess[i] << " ";
         }
-        cout<<"?"<<endl;
-
-        cout << "Enter hint: ";
-        user_hint = getHintFromUser(); // BU EKSİK KALDI
-        //cin >> user_hint;
+        cout<<"? \nEnter hint: ";
+        
+        // Ipucuyu alır ve formata uygun mu kontrol eder. 
+        // Butun degerler dogruysa yazilim kazanir.
+        user_hint = getHintFromUser();
 
         if (user_hint == "+4-0") {
             win = true;
@@ -73,15 +83,14 @@ int main() {
             break;
         }
 
-        //Remove from candidateSolutions,
-        //any code that would not give the same response if it were the code
-        pruneCodes(candidateSolutions, currentGuess, user_hint);
+        // candidate_solution icerisinde ayni karsiligi vermeyenleri listeden siler
+        pruneCodes(candidate_solution, current_guess, user_hint);
 
-        //Calculate Minmax scores
-        nextGuesses = minmax(turn);
+        //Minmax skorları hesaplar
+        next_guesses = minmax(turn);
 
-        //Select next guess
-        currentGuess = getNextGuess(nextGuesses);
+        // Bir sonraki tahmini belirler
+        current_guess = getNextGuess(next_guesses);
 
         turn++;
     }//End while
