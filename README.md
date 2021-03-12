@@ -13,7 +13,12 @@ cd NumberGuessing
 g++ -o outputFileName main.cpp helper.cpp
 outputFileName.exe
 ```
+3. Bir sayi tutup hazir olunca ilk tahmini girin.
+4. Yazılımın tahminine göre uygun formatta ipucuyu girin ( +X-Y örn: +1-2 )
 
+ <p align="center">
+  <img src="img/result.gif" />
+</p>
 
 ### Algoritmanın temel adımları:
 
