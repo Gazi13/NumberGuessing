@@ -118,6 +118,14 @@ string getHintFromUser(){
 
         user_input = "";
         cin >> user_input;
+
+        // Check input size
+        if (user_input.size() != 4){
+            format_check = true;
+            cout << "Hint length should be 4"<<endl;
+            cout << "Enter hint: ";
+            continue;
+        }
         
         // Check Input Format
         if (user_input.at(0) != '+' || user_input.at(2) != '-'){
@@ -133,13 +141,7 @@ string getHintFromUser(){
             cout << "Enter hint: ";
             continue;
         }
-        // Check input size
-        if (user_input.size() != 4){
-            format_check = true;
-            cout << "Hint length should be 4"<<endl;
-            cout << "Enter hint: ";
-            continue;
-        }
+
         // Check sum of numbers 
         if ((user_input[1]-48)+(user_input[3]-48)>4){
             format_check = true;
