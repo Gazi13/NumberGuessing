@@ -20,28 +20,30 @@ outputFileName.exe
   <img src="img/result.gif" />
 </p>
 
-### Algoritmanın temel adımları:
+---
 
-* Yazılımın için rasgele 4 basamaklı bir kod ve tahmin oluştur.
+### Algoritma
 
-* Muhtemel bütün sayıları içeren bir lister oluştur. `combinations ve candidate_solution` (1023,1024 ... 9875,9876).
+* Yazılım için rasgele 4 basamaklı bir kod ve tahmin oluştur.
+
+* Muhtemel bütün sayıları içeren listeler oluştur. `combinations ve candidate_solution` (1023,1024 ... 9875,9876).
 
 <br>
 
 1. Kullanıcıdan bir tahmin al ve kontrol et.
 
-   * Eğer ipuçu "+4-0" ise kullanıcı kazanır.
+   * Eğer ipucu "+4-0" ise kullanıcı kazanır.
 
-2. Yazılım tahminde bulunur ve tahmin sayısını `combinations - candidate_solution` listelerinden siler.
+2. Yazılım tahmin değerini girer ve tahmin sayısını `combinations - candidate_solution` listelerinden siler.
 
-3. Kullanıcı tahmine karşılık bir ipuçu girer.
+3. Kullanıcı tahmine karşılık bir ipucu girer.
 
-   * Eğer İpuçu "+4-0" ise yazılım kazanır.
+   * Eğer ipucu "+4-0" ise yazılım kazanır.
 
-4. Yazılım bu ipuçua göre `candidate_solution` listesinden eleme işlemi yapar. Eleme işlemi şu şekilde çalışır:<br>
+4. Yazılım bu ipucuna göre `candidate_solution` listesinden eleme işlemi yapar. Eleme işlemi şu şekilde çalışır:<br>
 
 `candidate_solution` listesi içerisinde bulunan  bir sayı, tahmin sayısı ile karşılaştırıldığında kullanıcının verdiği ipucu ile aynı sonucu vermelidir.
-Eğer aynı sonucu vermiyor ise aradığımız sayı olma ihtimali yoktur ve `candidate_solution` listesinden silinir.
+Eğer aynı sonucu vermiyor ise aradığımız sayı olma ihtimali yoktur ve candidate listesinden silinir.
 
 <p align="center">
   <img src="img/img1.png" />
@@ -67,9 +69,11 @@ Bir input candidate listesindeki bütün değerler ile karşılaştırılır ve 
 | +4-0 | 1 |
 
 
-Bu taplo bize eğer bir sayı seçilirse en fazla kaç tane sayıyı tutacağını gösterir. Tablodaki her bir ipucu bir grup olarak düşünülebilir.
-Kullanıcı bize bu gruplardan bir tanesini verecek ve biz bu grupların her biri için eğer bu ipucu gelirse aynı ipucunu elde edebileceğimiz aday sayıların adedini görüyoruz.
-Kullanıcının vereceği ipucuna göre bir sonraki adıma bu gruplardan sadece bir tanesi kalacak, diğer gruplar elenecek.<br>
+Bu taplo bize eğer bir sayı seçilirse en fazla kaç tane sayıyı "silmeyeceğini" gösterir. Tablodaki her bir ipucu bir grup olarak düşünülebilir.
+Kullanıcının verdiği ipucu bu gruplardan bir tanesini olacak. Bu taploda grupların her biri için eğer bu ipucu gelirse aynı ipucunu elde edebileceğimiz candidate sayıların adedini görüyoruz.
+Eleme işleminde farklı sonuç verenlerin elendiğini hatırlarsak bu taplonun aslında kaç tane elemanın silinip-silinmeyeceğini ifade ettiğini anlayabiliriz.
+Yani kullanıcının vereceği ipucuna göre bir sonraki adıma bu gruplardan sadece bir tanesi kalacak, diğer gruplar elenecek.<br>
+
 <p align="center">
   <img src="img/img2.png" />
 </p>
@@ -83,10 +87,10 @@ Kullanıcının vereceği ipucuna göre bir sonraki adıma bu gruplardan sadece 
     current_guess = getNextGuess(next_guesses);
 ```
 
-Bu gruplar arasından en fazla tekrar edeni seçiyoruz. Bunun sebebi, minimum değerlerin bütün input değerleri için nerdeyse aynı olması.
-Daha sonra bu maximum değerler arasından en düşük olanı seçiyoruz.<br>
+Bu gruplar arasından (maximum) en fazla tekrar edeni seçiyoruz. Bunun sebebi, minimum değerlerin bütün input değerleri için nerdeyse aynı olması.
+Daha sonra bu maximum değerler arasından (minimum) en düşük olanı seçiyoruz.<br>
 
-Kısaca, direkt olarak en çok eleme yapanı alamadığımız için en az eleme ihtimalleri arasından en çoğunu alıyoruz. 
+Kısaca, direkt olarak en çok eleme yapanı alamadığımız için <ins>en az eleme ihtimalleri arasından en çoğunu</ins> alıyoruz (minmax işlemi). 
 
 
 

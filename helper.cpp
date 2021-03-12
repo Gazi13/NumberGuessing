@@ -2,7 +2,6 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include <ctime>
 #include <string>
 #include <chrono>
 
@@ -12,7 +11,7 @@ using namespace std::chrono;
 #include "helper.h"
 
 
-vector<vector<int>> combinations; //Master set of combinations 1111 to 6666
+vector<vector<int>> combinations;
 vector<vector<int>> candidate_solution;
 vector<vector<int>> next_guesses;
 vector<int> computer_code;
@@ -24,6 +23,35 @@ string user_hint;
 bool win;
 int turn;
 
+
+string testCode(vector<int> guess){
+
+    vector<vector<int>> test_code 
+    { 
+        {2, 3, 9, 7},
+        {4, 1, 0, 3},
+        {7, 8, 9, 0},
+        {1, 2, 3, 5}
+
+    };
+
+    string test_hint = checkCode(guess, test_code[3]);
+
+    return test_hint;
+
+}
+
+bool checkResult(string respond,int who){
+    
+    if (respond == "+4-0") {
+        win = true;
+        if (who == 0)
+            cout << "You Win!" << endl;
+        else
+            cout << "Computer Win!" << endl;
+    }
+    return win;
+}
 
 vector<int> getRandomCode() {
    /**
@@ -288,9 +316,9 @@ void pruneCodes(vector<vector<int>> &set, vector<int> currentCode, string curren
 
 vector<vector<int>> minmax(int turn) {
     /**
-    * Bir sonraki tahmin icin candidate listesinden en cok elemeye yapacak sayi secilmelidir.
+    * Bir sonraki tahmin icin candidate listesinden en cok eleme yapacak sayi secilmelidir.
     * Bunun icin muhtemel inputlar teker teker denenip minimum eleme sayilari bulunur.
-    * Daha sonra bunlar icersinde maximum eleme yapan deger secilir.
+    * Daha sonra bunlar icerisinde maximum eleme yapan deger secilir.
     */
 
     map<string, int> scoreCount;
